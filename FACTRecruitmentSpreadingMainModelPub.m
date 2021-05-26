@@ -7,61 +7,92 @@
 %% Parameter sets used for figures in the publication
 %If not specified, they were as in the code below
 
-% WT version (Figure 5B):
+% WT version (Figure 6B):
 
-%FACTBindingRate = 0.0005;
+%FACTBindingRate = 0.0001;
 %FACTExtensionRate = 0.3;
 %FACTRetractionRate = 0.3;
 %FACTExtToRetSwitch = 0.03;
 %FACTRetToExtSwitch = 0.03;
 %FACTUnbindingRate = 0.00005;
+%FACTStallingRate = 0;
 
 
-% chd1\Delta version (Figures 5D):
+% chd1\Delta model 1 version (Figure 6C, S6C middle):
 
-%FACTBindingRate = 0.0005;
+%FACTBindingRate = 0.0001;
 %FACTExtensionRate = 0.075;
 %FACTRetractionRate = 0.3;
 %FACTExtToRetSwitch = 0.03;
 %FACTRetToExtSwitch = 0.03;
-%FACTUnbindingRate = 0.00005;
+%FACTUnbindingRate = 0.0001;
+%FACTStallingRate = 0;
 
 
-% Basic version (Figure S5A):
+% chd1\Delta model 2 version (Figure 6D, S6C right):
 
-%FACTBindingRate = 0.0005;
+%FACTBindingRate = 0.0001;
 %FACTExtensionRate = 0.3;
 %FACTRetractionRate = 0.3;
-%FACTExtToRetSwitch = 0.5;
-%FACTRetToExtSwitch = 0.5;
+%FACTExtToRetSwitch = 0.03;
+%FACTRetToExtSwitch = 0.03;
+%FACTUnbindingRate = 0.0001;
+%FACTStallingRate = 0.0001;
+
+
+% Bare Bones version (Figure S6A left):
+
+%FACTBindingRate = 0.0001;
+%FACTExtensionRate = 0.3;
+%FACTRetractionRate = 0.3;
+%FACTExtToRetSwitch = 0.3;
+%FACTRetToExtSwitch = 0.3;
 %FACTUnbindingRate = 0;
-
-%(NB lack of extension/retraction state switching approximated with rapid
-%state switch)
+%FACTStallingRate = 0;
 
 
-% Basic with unbinding version (Figure S5B):
+% Bare Bones with slow retraction to extension switch version (Figure S6A middle):
 
-%FACTBindingRate = 0.0005;
+%FACTBindingRate = 0.0001;
 %FACTExtensionRate = 0.3;
 %FACTRetractionRate = 0.3;
-%FACTExtToRetSwitch = 0.5;
-%FACTRetToExtSwitch = 0.5;
+%FACTExtToRetSwitch = 0.3;
+%FACTRetToExtSwitch = 0.03;
+%FACTUnbindingRate = 0;
+%FACTStallingRate = 0;
+
+
+% Slow retraction version (Figure S6B left):
+
+%FACTBindingRate = 0.0001;
+%FACTExtensionRate = 0.3;
+%FACTRetractionRate = 0.075;
+%FACTExtToRetSwitch = 0.03;
+%FACTRetToExtSwitch = 0.03;
 %FACTUnbindingRate = 0.00005;
+%FACTStallingRate = 0;
 
 
-% Basic with reduced transition between extending and retracting states
-% (Figure S5C):
+% Increased unbinding (Figure S6B middle):
 
-%FACTBindingRate = 0.0005;
+%FACTBindingRate = 0.0001;
 %FACTExtensionRate = 0.3;
 %FACTRetractionRate = 0.3;
-%FACTExtToRetSwitch = 0.5;
-%FACTRetToExtSwitch = 0.5;
+%FACTExtToRetSwitch = 0.03;
+%FACTRetToExtSwitch = 0.03;
+%FACTUnbindingRate = 0.0001;
+%FACTStallingRate = 0;
+
+
+% Slow extension to retraction switch (Figure 6B):
+
+%FACTBindingRate = 0.0001;
+%FACTExtensionRate = 0.3;
+%FACTRetractionRate = 0.3;
+%FACTExtToRetSwitch = 0.003;
+%FACTRetToExtSwitch = 0.03;
 %FACTUnbindingRate = 0.00005;
-
-
-
+%FACTStallingRate = 0;
 
 
 %% Constants of the Simulation
@@ -100,6 +131,9 @@ FACTRetToExtSwitch = 0.03;
 %Rate at which FACT complexes will unbind:
 FACTUnbindingRate = 0.00005;
 
+%Rate at which FACT complexes will stall:
+FACTStallingRate = 0;
+
 %Normalising factor by which above rates are divided.
 RateNorm = 10.0;
 
@@ -110,6 +144,7 @@ FRRN = FACTRetractionRate / RateNorm;
 FERSN = FACTExtToRetSwitch / RateNorm;
 FRESN = FACTRetToExtSwitch / RateNorm;
 FUBRN = FACTUnbindingRate / RateNorm;
+FSRN = FACTStallingRate / RateNorm;
 
 %Total probability of an event occuring during a single time step must be 
 %less than 1
@@ -117,7 +152,8 @@ if ( RateNorm < ...
         (FACTBindingRate + ...
         MaxFACTNo*max(FACTExtensionRate,FACTRetractionRate) + ...
         MaxFACTNo*max(FACTExtToRetSwitch,FACTRetToExtSwitch) + ...
-        MaxFACTNo*FACTUnbindingRate) )
+        MaxFACTNo*FACTUnbindingRate + ...
+        MaxFACTNo*FACTStallingRate) )
 
     error('InchwormScript:NormTooSmall','Warning: The Rate Normalisation Factor was too small, exiting.')
     
@@ -134,7 +170,7 @@ timeSteps = 1000000;
 samplingInterval = 10; 
 
 %Number of independent simulation runs
-Realisations = 10000;
+Realisations = 100000;
 
 
 
@@ -155,8 +191,7 @@ ExtNo = 0;      %Number that are extending
 RetNo = 0;      %Number that are retracting
 FullyExtNo = 0; %Number that are fully extended
 FullyRetNo = 0; %Number that are fully retracted
-
-%just look at a single realisation for now
+StalledNo = 0;  %Number that are stalled
 
 
 %Holds a density heatmap of fragments that would be observed in an 
@@ -209,6 +244,7 @@ for rctr=1:1:Realisations
     RetNo = 0;
     FullyExtNo = 0;
     FullyRetNo = 0;
+    StalledNo = 0;
     
     
     %----Relax the System to an assumed Steady State----------------------
@@ -371,8 +407,28 @@ for rctr=1:1:Realisations
                 FACTNo = FACTNo - 1;
                 RelaxationEarlyFinishedNo = RelaxationEarlyFinishedNo + 1;
                 
+            elseif (FACTStates(ChosenFACT,4) == 3)
+                FACTStates(ChosenFACT,:) = [0 0 0 0];
+                StalledNo = StalledNo - 1;
+                for ictr = ChosenFACT:1:(FACTNo-1)
+                    FACTStates(ictr,:) = ...
+                        FACTStates(ictr+1,:);
+                    FACTStates(ictr+1,:) = [0 0 0 0];
+                end
+                FACTNo = FACTNo -1;
+                RelaxationEarlyFinishedNo = RelaxationEarlyFinishedNo + 1;
+                                
             end
             
+        elseif diceRoll < (FBRN+(ExtNo*FERN)+(RetNo*FRRN)+(FullyExtNo*FERSN)+(FullyRetNo*FRESN)+ ...
+                (FACTNo*FUBRN)+(ExtNo*FSRN))
+            %select an extending FACT complex to stall
+            ChosenFACT = find(FACTStates(:,4)==1);
+            ChosenFACT = ChosenFACT(randi(ExtNo));
+            
+            FACTStates(ChosenFACT,4) = 3;
+            ExtNo = ExtNo -1;
+            StalledNo = StalledNo + 1;
             
         end
         
@@ -538,7 +594,28 @@ for rctr=1:1:Realisations
                 FACTNo = FACTNo - 1;
                 SteadyStateEarlyFinishedNo = SteadyStateEarlyFinishedNo + 1;
                 
+            elseif (FACTStates(ChosenFACT,4) == 3)
+                FACTStates(ChosenFACT,:) = [0 0 0 0];
+                StalledNo = StalledNo - 1;
+                for ictr = ChosenFACT:1:(FACTNo-1)
+                    FACTStates(ictr,:) = ...
+                        FACTStates(ictr+1,:);
+                    FACTStates(ictr+1,:) = [0 0 0 0];
+                end
+                FACTNo = FACTNo - 1;
+                SteadyStateEarlyFinishedNo = SteadyStateEarlyFinishedNo + 1;
+                
             end
+            
+        elseif diceRoll < (FBRN+(ExtNo*FERN)+(RetNo*FRRN)+(FullyExtNo*FERSN)+(FullyRetNo*FRESN)+ ...
+                (FACTNo*FUBRN)+(ExtNo*FSRN))
+            %select and extending FACT complex to stall
+            ChosenFACT = find(FACTStates(:,4)==1);
+            ChosenFACT = ChosenFACT(randi(ExtNo));
+            
+            FACTStates(ChosenFACT,4) = 3;
+            ExtNo = ExtNo - 1;
+            StalledNo = StalledNo + 1;
             
         end
         

@@ -6,44 +6,16 @@
 %% Parameter sets used for figures in the publication
 %If not specified, they were as in the code below
 
-% WT with internal binding and no unbinding version (Figure 5C):
+
+% Bare Bones with internal binding version (Figure S6A right):
 
 %FACTBindingRate = NucNo*0.0005;
 %FACTExtensionRate = 0.3;
 %FACTRetractionRate = 0.3;
-%FACTExtToRetSwitch = 0.03;
-%FACTRetToExtSwitch = 0.03;
+%FACTExtToRetSwitch = 0.3;
+%FACTRetToExtSwitch = 0.3;
 %FACTUnbindingRate = 0;
 
-
-% WT with internal binding version (Figure S5D):
-
-%FACTBindingRate = NucNo*0.0005;
-%FACTExtensionRate = 0.3;
-%FACTRetractionRate = 0.3;
-%FACTExtToRetSwitch = 0.03;
-%FACTRetToExtSwitch = 0.03;
-%FACTUnbindingRate = 0.0005;
-
-
-% WT with internal binding and high unbinding version (Figure S5E):
-
-%FACTBindingRate = NucNo*0.0005;
-%FACTExtensionRate = 0.3;
-%FACTRetractionRate = 0.3;
-%FACTExtToRetSwitch = 0.03;
-%FACTRetToExtSwitch = 0.03;
-%FACTUnbindingRate = 0.005;
-
-
-% WT with internal binding and reduced retraction rate (Figure S5F):
-
-%FACTBindingRate = NucNo*0.0005;
-%FACTExtensionRate = 0.3;
-%FACTRetractionRate = 0.075;
-%FACTExtToRetSwitch = 0.03;
-%FACTRetToExtSwitch = 0.03;
-%FACTUnbindingRate = 0.0005;
 
 
 
